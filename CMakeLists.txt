@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.20)
+project(DeviceNamespace LANGUAGES CXX)
+
+add_executable(DeviceNamespace DeviceNamespace.cpp)
+target_compile_features(DeviceNamespace PRIVATE cxx_std_17)
+target_compile_definitions(DeviceNamespace PRIVATE UNICODE _UNICODE WIN32_LEAN_AND_MEAN NOMINMAX)
+target_link_libraries(DeviceNamespace PRIVATE advapi32)
+
+if(MSVC)
+    set_property(TARGET DeviceNamespace PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    target_compile_options(DeviceNamespace PRIVATE /W4)
+else()
+    target_compile_options(DeviceNamespace PRIVATE -Wall -Wextra -Wpedantic)
+    target_link_options(DeviceNamespace PRIVATE -municode -static)
+endif()

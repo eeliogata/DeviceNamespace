@@ -1,0 +1,23 @@
+name: Windows
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-2022
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build
+        shell: pwsh
+        run: |
+          cmake -S . -B build -A x64
+          cmake --build build --config Release
+      - name: Probe
+        shell: pwsh
+        run: |
+          $output = & .\build\Release\DeviceNamespace.exe '\Device\Null' --access 0x1
+          $output | Out-Host
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($output[2] -ne 'root \Device\Null' -or $output[3] -ne '  status 0x00000000') { throw 'Null root did not open' }
